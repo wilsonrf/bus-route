@@ -26,7 +26,9 @@ repositories {
 dependencies {
 	compile('org.springframework.boot:spring-boot-starter')
 	compile('org.springframework.boot:spring-boot-starter-web')
-	compile('org.springframework.boot:spring-boot-hateoas')
+	compile('org.springframework.boot:spring-boot-starter-hateoas')
 	compile('org.springframework.boot:spring-boot-starter-actuator')
+	compileOnly("org.springframework.boot:spring-boot-devtools")
+	runtime("org.codehaus.groovy:groovy:2.+")
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 }
