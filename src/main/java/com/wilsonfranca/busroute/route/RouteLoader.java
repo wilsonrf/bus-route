@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import java.io.BufferedReader;
@@ -66,7 +67,15 @@ public class RouteLoader {
         }
     }
 
-    private void parseLine(final String line) {
+    public Routes getRoutes() {
+        return this.routes;
+    }
+
+    protected void parseLine(final String line) {
+
+        Assert.hasLength(line, "Line must not be null or empty");
+
+        logger.debug("Starting Parsing line: [{}]", line);
 
         String[] strings = line.split(" ");
 
@@ -83,6 +92,8 @@ public class RouteLoader {
                 routes.addRoute(from, to);
             }
         }
+
+        logger.debug("End Parsing line: [{}]", line);
 
     }
 }
