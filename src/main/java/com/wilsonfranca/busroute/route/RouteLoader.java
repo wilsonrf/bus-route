@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 @Component
 public class RouteLoader {
@@ -51,6 +52,7 @@ public class RouteLoader {
 
             while ((line = bufferedReader.readLine()) != null) {
                 logger.debug(line);
+                logger.info("Line number [{}]", lineNumber);
                 if (lineNumber == 0) {
                     total = Integer.valueOf(line);
                     logger.debug("First line of the file, total bus lines on file: [{}]", total);
@@ -67,6 +69,25 @@ public class RouteLoader {
         }
     }
 
+    public void readFile(String path) {
+        logger.info("Loading file: [{}]", path);
+
+        Path file = Paths.get(path);
+
+        Charset charset = Charset.forName("UTF-8");
+
+        try (Stream<String> stringStream = Files.lines(file)) {
+
+            stringStream
+                    .forEach(line -> { parseLine(line); });
+
+            logger.debug("Routes: [{}]", Arrays.toString(routes.getRoutes().entrySet().toArray()));
+
+        } catch (IOException e) {
+            logger.error("Error on loading file [{}] [{}]", path, e.getMessage(), e);
+        }
+    }
+
     public Routes getRoutes() {
         return this.routes;
     }
@@ -75,7 +96,7 @@ public class RouteLoader {
 
         Assert.hasLength(line, "Line must not be null or empty");
 
-        logger.debug("Starting Parsing line: [{}]", line);
+        logger.info("Starting Parsing line: [{}]", line);
 
         String[] strings = line.split(" ");
 

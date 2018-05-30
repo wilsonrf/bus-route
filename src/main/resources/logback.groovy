@@ -1,7 +1,4 @@
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder
-import ch.qos.logback.core.ConsoleAppender
-import ch.qos.logback.core.rolling.RollingFileAppender
-import ch.qos.logback.core.rolling.TimeBasedRollingPolicy
 
 import static ch.qos.logback.classic.Level.*
 
@@ -32,11 +29,11 @@ def appenderList = ['STDOUT', 'FILE']
 if ("default".equalsIgnoreCase(ACTIVE_PROFILE)) {
 
     logger('org.springframework', INFO, appenderList, false)
-    logger('com.wilsonfranca', DEBUG, appenderList, false)
+    logger('com.wilsonfranca', INFO, appenderList, false)
 
 } else {
 
     logger('org.springframework', WARN, appenderList, false)
-    logger('com.wilsonfranca', DEBUG, appenderList, false)
+    logger('com.wilsonfranca', INFO, appenderList, false)
 }
 root(INFO, appenderList)
