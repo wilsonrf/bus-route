@@ -1,8 +1,9 @@
 package com.wilsonfranca.busroute.direct;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.springframework.hateoas.ResourceSupport;
 
-public class DirectResource {
+public class DirectResource extends ResourceSupport {
 
     @JsonProperty("dep_sid")
     private Integer departure;
@@ -12,6 +13,12 @@ public class DirectResource {
 
     @JsonProperty("direct_bus_route")
     private Boolean directBusRoute;
+
+    public DirectResource(int departure, int arrival, boolean directBusRoute) {
+        this.departure = departure;
+        this.arrival = arrival;
+        this.directBusRoute = directBusRoute;
+    }
 
     public Integer getDeparture() {
         return departure;

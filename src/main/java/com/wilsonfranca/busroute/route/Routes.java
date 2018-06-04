@@ -37,6 +37,22 @@ public class Routes {
 
     }
 
+    public void addRoute(final int from, final int... to) {
+
+        logger.debug("Adding route from [{}] to [{}]", from, to);
+        int[] toList = routes.get(from);
+
+        if (toList == null) {
+            logger.debug("Not found route from [{}] to [{}], creating route from [{}]", from, to, from);
+            toList = to;
+            routes.put(from, toList);
+        } else {
+            logger.debug("Founded route from [{}] to [{}] adding to [{}]", from, to, to);
+            add(toList, from, to);
+        }
+
+    }
+
     public Map<Integer, int[]> getRoutes() {
         return routes;
     }
@@ -45,14 +61,41 @@ public class Routes {
 
     public boolean hasDirectConnection(int from, int to) {
         int[] stations = stations(from);
-        return Arrays.stream(stations).filter(value -> to == value).findFirst().isPresent();
+        if (stations != null) {
+            return Arrays.stream(stations).filter(value -> to == value).findFirst().isPresent();
+        } else {
+            return false;
+        }
     }
 
     protected void add(int[] toList, int from, int to) {
-        List<Integer> temporary = Arrays.stream(toList).boxed().collect(Collectors.toList());
+        Set<Integer> temporary = Arrays.stream(toList).boxed().collect(Collectors.toSet());
         temporary.add(to);
         toList = temporary.stream().mapToInt(i -> i).toArray();
         routes.put(from, toList);
     }
 
+    protected void add(int[] toList, int from, int... to) {
+        Set<Integer> temporary = Arrays.stream(toList).boxed().collect(Collectors.toSet());
+        List<Integer> toAdd = Arrays.stream(to).boxed().collect(Collectors.toList());
+        temporary.addAll(toAdd);
+        toList = temporary.stream().mapToInt(i -> i).toArray();
+        routes.put(from, toList);
+    }
+
+    public void addAll(Map<Integer, int[]> map) {
+        for (Map.Entry<Integer, int[]> integerEntry : map.entrySet()) {
+            addRoute(integerEntry.getKey(), integerEntry.getValue());
+        }
+    }
+
+    public Optional<Route> getRoute(final int from, final int to) {
+
+        int[] stations = routes.get(from);
+        if (stations != null) {
+            return Optional.of(new Route(from, to, hasDirectConnection(from, to)));
+        } else {
+            return Optional.empty();
+        }
+    }
 }

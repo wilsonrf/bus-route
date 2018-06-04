@@ -30,7 +30,7 @@ public class FileRouteListener implements ApplicationListener<ContextRefreshedEv
         String file = busRouteConfigProperties.getFilePath();
         if (StringUtils.hasLength(file)) {
             logger.info("File path registred on initialization: [{}]", file);
-            routeLoader.loadFile(file);
+            routeLoader.load(file);
         } else {
             logger.info("No file path registered on initialization");
         }

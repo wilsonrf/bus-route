@@ -5,22 +5,19 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.charset.Charset;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
+import java.util.Map;
+
+import static java.nio.file.StandardOpenOption.READ;
 
 @Component
 public class RouteLoader {
@@ -34,87 +31,56 @@ public class RouteLoader {
         this.routes = routes;
     }
 
-    public void loadFile(String path) {
+    protected Path readFile(final String path) {
+        Assert.hasLength(path, "Path cannot be null");
+        Path file = Paths.get(path);
+        if (Files.isRegularFile(file) && Files.isReadable(file)) {
+            return file;
+        } else {
+            throw new IllegalStateException("File is not readable or not exists!");
+        }
+    }
+
+    public void load(final String path) {
 
         logger.info("Loading file: [{}]", path);
 
-        Path file = Paths.get(path);
+        Path file = readFile(path);
 
-        Charset charset = Charset.forName("UTF-8");
+        try (FileChannel fileChannel = FileChannel.open(file, READ)) {
 
-        try (InputStream inputStream = Files.newInputStream(file, StandardOpenOption.READ);
-             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream))) {
+            MappedByteBuffer mappedByteBuffer = fileChannel.map(FileChannel.MapMode.READ_ONLY, 0, Files.size(file));
 
-            String line = null;
+            byte [] buffer = new byte[(int) Files.size(file)];
 
+            mappedByteBuffer.get(buffer);
+
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(buffer)));
+
+            String line;
             int lineNumber = 0;
-            int total = 0;
+            int total;
+
+            RouteLineParser routeLineParser  = new RouteLineParser();
 
             while ((line = bufferedReader.readLine()) != null) {
-                logger.debug(line);
                 logger.info("Line number [{}]", lineNumber);
                 if (lineNumber == 0) {
                     total = Integer.valueOf(line);
-                    logger.debug("First line of the file, total bus lines on file: [{}]", total);
+                    logger.info("First line of the file, total bus lines on file: [{}]", total);
                 } else {
-                    parseLine(line);
+                    Map<Integer, int[]> lineParsed = routeLineParser.parse(line);
+                    routes.addAll(lineParsed);
                 }
                 lineNumber++;
             }
 
-            logger.debug("Routes: [{}]", Arrays.toString(routes.getRoutes().entrySet().toArray()));
-
         } catch (IOException e) {
-            logger.error("Error on loading file [{}] [{}]", path, e.getMessage(), e);
-        }
-    }
-
-    public void readFile(String path) {
-        logger.info("Loading file: [{}]", path);
-
-        Path file = Paths.get(path);
-
-        Charset charset = Charset.forName("UTF-8");
-
-        try (Stream<String> stringStream = Files.lines(file)) {
-
-            stringStream
-                    .forEach(line -> { parseLine(line); });
-
-            logger.debug("Routes: [{}]", Arrays.toString(routes.getRoutes().entrySet().toArray()));
-
-        } catch (IOException e) {
-            logger.error("Error on loading file [{}] [{}]", path, e.getMessage(), e);
+            logger.error("Error on reading the file. [{}]", e);
         }
     }
 
     public Routes getRoutes() {
         return this.routes;
-    }
-
-    protected void parseLine(final String line) {
-
-        Assert.hasLength(line, "Line must not be null or empty");
-
-        logger.info("Starting Parsing line: [{}]", line);
-
-        String[] strings = line.split(" ");
-
-        List<String> stringList = IntStream.range(0, strings.length)
-                .filter(i -> i > 0)
-                .mapToObj(i -> strings[i])
-                .filter(StringUtils::hasLength)
-                .collect(Collectors.toList());
-
-        for (int i = 0; i < stringList.size(); i++) {
-            int from = Integer.valueOf(stringList.get(i));
-            for (int j = i + 1; j < stringList.size(); j++) {
-                int to = Integer.valueOf(stringList.get(j));
-                routes.addRoute(from, to);
-            }
-        }
-
-        logger.debug("End Parsing line: [{}]", line);
-
     }
 }
