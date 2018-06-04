@@ -5,12 +5,14 @@ cd $(dirname $0)
 
 dev_build() {
   # Do what you need to package your app, e.g. mvn package
+  ./gradlew clean build
   true
 }
 
 dev_run() {
   # Do what you need to run your app in the foreground
   # e.g. java -jar target/magic.jar $*
+  java -jar -Dbus-route.filePath=$* -Dserver.port=8088 build/libs/bus-route.jar
   sleep 600
 }
 
@@ -27,7 +29,7 @@ dev_smoke() {
 _run_smoke() {
   baseUrl="http://localhost:8088"
   echo "Running smoke tests on $baseUrl..." && \
-    (curl -fsS "$baseUrl/api/direct?dep_sid=3&arr_sid=4" | grep -E 'true|false') && \
+    (curl -fsS "$baseUrlse" | grep -E 'true|false') && \
     (curl -fsS "$baseUrl/api/direct?dep_sid=0&arr_sid=1" | grep -E 'true|false')
 }
 

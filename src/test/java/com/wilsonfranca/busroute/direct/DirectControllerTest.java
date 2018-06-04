@@ -1,8 +1,5 @@
-package com.wilsonfranca.busroute;
+package com.wilsonfranca.busroute.direct;
 
-import com.wilsonfranca.busroute.direct.DirectResource;
-import com.wilsonfranca.busroute.direct.DirectResourceAssembler;
-import com.wilsonfranca.busroute.direct.DirectService;
 import com.wilsonfranca.busroute.route.Route;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -11,8 +8,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
-
-import java.util.Optional;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -35,7 +30,7 @@ public class DirectControllerTest {
     @Test
     public void testTryGettingAnExistingDirectRouteAndGet200Ok() throws Exception {
         Route route = new Route(3, 4, true);
-        when(directService.getRoute(3, 4)).thenReturn(Optional.of(route));
+        when(directService.getRoute(3, 4)).thenReturn(route);
         when(directResourceAssembler.toResource(route)).thenReturn(new DirectResource(3, 4, true));
         mockMvc.perform(get("/api/direct")
                 .param("dep_sid", "3")
@@ -48,7 +43,7 @@ public class DirectControllerTest {
     @Test
     public void testTryGettingAnExistingNotDirectRouteAndGet200Ok() throws Exception {
         Route route = new Route(5, 6, false);
-        when(directService.getRoute(5, 6)).thenReturn(Optional.of(route));
+        when(directService.getRoute(5, 6)).thenReturn(route);
         when(directResourceAssembler.toResource(route)).thenReturn(new DirectResource(5, 6, false));
         mockMvc.perform(get("/api/direct")
                 .param("dep_sid", "5")

@@ -32,3 +32,8 @@ dependencies {
 	runtime("org.codehaus.groovy:groovy:2.+")
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 }
+
+jar {
+	baseName = 'bus-route'
+	archiveName = 'bus-route.jar'
+}

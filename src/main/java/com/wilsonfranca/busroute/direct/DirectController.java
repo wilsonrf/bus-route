@@ -1,7 +1,6 @@
 package com.wilsonfranca.busroute.direct;
 
 import com.wilsonfranca.busroute.route.Route;
-import com.wilsonfranca.busroute.route.RouteNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,8 +10,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/direct")
@@ -37,9 +34,7 @@ public class DirectController {
 
         logger.info("Start direct controller: dep_sid=[{}] arr_sid=[{}]", departure, arrival);
 
-        Optional<Route> optional = directService.getRoute(departure, arrival);
-
-        Route route = optional.orElseThrow(RouteNotFoundException::new);
+        Route route = directService.getRoute(departure, arrival);
 
         DirectResource directResource = directResourceAssembler.toResource(route);
 

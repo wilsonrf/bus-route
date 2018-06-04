@@ -1,2 +1,2 @@
 bus-route:
-  file_path: src/main/resources/10routesfile
+  filePath: src/main/resources/10routesfile

@@ -89,13 +89,9 @@ public class Routes {
         }
     }
 
-    public Optional<Route> getRoute(final int from, final int to) {
+    public Route getRoute(final int from, final int to) {
 
-        int[] stations = routes.get(from);
-        if (stations != null) {
-            return Optional.of(new Route(from, to, hasDirectConnection(from, to)));
-        } else {
-            return Optional.empty();
-        }
+        return new Route(from, to, hasDirectConnection(from, to));
+
     }
 }
